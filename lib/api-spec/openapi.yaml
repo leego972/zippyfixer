@@ -1,0 +1,148 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: ZippyFixer API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: checkout
+    description: Stripe checkout and downloads
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /checkout/create-session:
+    post:
+      operationId: createCheckoutSession
+      tags: [checkout]
+      summary: Create Stripe checkout session for ZippyFixer ($497)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCheckoutRequest"
+      responses:
+        "200":
+          description: Checkout session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateCheckoutResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /checkout/download/{token}:
+    get:
+      operationId: downloadTool
+      tags: [checkout]
+      summary: Download ZippyFixer ZIP using a valid purchase token
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ZIP file download
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        "403":
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /checkout/verify/{sessionId}:
+    get:
+      operationId: verifyPurchase
+      tags: [checkout]
+      summary: Verify payment and get download token
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Purchase verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyPurchaseResponse"
+        "402":
+          description: Payment not complete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    CreateCheckoutRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required: [email]
+
+    CreateCheckoutResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Stripe hosted checkout URL to redirect the user to
+        sessionId:
+          type: string
+      required: [url, sessionId]
+
+    VerifyPurchaseResponse:
+      type: object
+      properties:
+        paid:
+          type: boolean
+        downloadToken:
+          type: string
+        email:
+          type: string
+      required: [paid]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]

@@ -1,0 +1,25 @@
+{
+  "name": "zippyfixer",
+  "version": "1.0.0",
+  "description": "ZippyFixer — Your All-In-One Beta Tester. AI drives a real browser, finds bugs, reads your GitHub code, writes fixes, and checks Railway deployments.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "install-browsers": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.21.1",
+    "adm-zip": "^0.5.17",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "marked": "^12.0.0",
+    "multer": "^2.2.0",
+    "openai": "^4.47.1",
+    "playwright": "^1.44.0",
+    "socket.io": "^4.7.5",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

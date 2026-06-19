@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "JVv8DKAAVbrbFsE3vFO-D"
+uri = "file://zippyfixer-tool.zip"
+type = "unspecified"
+title = "ZippyFixer Tool — Download"

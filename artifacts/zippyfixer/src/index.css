@@ -1,0 +1,120 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --font-sans: var(--app-font-sans);
+  --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: 222 47% 4%;
+  --foreground: 210 40% 96%;
+  --border: 217 33% 14%;
+  --input: 217 33% 14%;
+  --ring: 162 100% 45%;
+  --card: 222 47% 6%;
+  --card-foreground: 210 40% 96%;
+  --primary: 162 100% 45%;
+  --primary-foreground: 222 47% 4%;
+  --secondary: 217 33% 12%;
+  --secondary-foreground: 210 40% 80%;
+  --muted: 217 33% 10%;
+  --muted-foreground: 215 20% 50%;
+  --accent: 199 89% 48%;
+  --accent-foreground: 222 47% 4%;
+  --destructive: 0 72% 51%;
+  --app-font-sans: 'Inter', system-ui, sans-serif;
+  --app-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * { @apply border-border box-border; }
+  body { @apply bg-background text-foreground font-sans antialiased; }
+}
+
+/* Glow utilities */
+.glow-green { box-shadow: 0 0 30px rgba(0, 255, 136, 0.15), 0 0 60px rgba(0, 255, 136, 0.05); }
+.glow-cyan  { box-shadow: 0 0 30px rgba(6, 182, 212, 0.15),  0 0 60px rgba(6, 182, 212, 0.05); }
+.text-glow  { text-shadow: 0 0 20px rgba(0, 255, 136, 0.5); }
+
+/* Grid background */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Scanning animation for hero badge */
+@keyframes scan {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.scan-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(0,255,136,0.4), transparent);
+  animation: scan 2.5s linear infinite;
+}
+
+/* Pulse dot */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(1.4); }
+}
+.pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #00ff88 0%, #06b6d4 50%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Feature card hover */
+.feature-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 40px rgba(0, 255, 136, 0.12);
+}
+
+/* CTA button shimmer */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.btn-shimmer {
+  background: linear-gradient(
+    135deg,
+    #00ff88 0%, #06b6d4 33%, #a78bfa 66%, #00ff88 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
