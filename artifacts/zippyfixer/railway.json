@@ -1,0 +1,14 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "pnpm install --no-frozen-lockfile && pnpm --filter @workspace/zippyfixer run build",
+    "watchPatterns": ["artifacts/zippyfixer/**", "lib/**"]
+  },
+  "deploy": {
+    "startCommand": "npx serve artifacts/zippyfixer/dist/public -s -l $PORT",
+    "healthcheckPath": "/",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
