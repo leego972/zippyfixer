@@ -1,7 +1,8 @@
 import { useState } from "react";
 import LeegoFooter from "@/components/LeegoFooter";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const API_ORIGIN = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+const BASE = API_ORIGIN || import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const FEATURES = [
   {
@@ -22,7 +23,7 @@ const FEATURES = [
   {
     icon: "🔍",
     title: "Deep Bug Detection",
-    desc: "Broken links, missing images, console errors, JS crashes, accessibility violations — nothing escapes ZippyFixer.",
+    desc: "Broken links, missing images, console errors, JS crashes, accessibility violations — nothing escapes ReviewGuard.",
   },
   {
     icon: "📸",
@@ -37,7 +38,7 @@ const FEATURES = [
 ];
 
 const HOW = [
-  { step: "01", title: "Paste your URL", desc: "Point ZippyFixer at any website — staging, production, or localhost." },
+  { step: "01", title: "Paste your URL", desc: "Point ReviewGuard at any website — staging, production, or localhost." },
   { step: "02", title: "AI tests everything", desc: "Groq AI navigates the site, clicks around, and hunts for bugs like a senior QA engineer." },
   { step: "03", title: "Fixes pushed to GitHub", desc: "Found a bug? AI reads the code, writes the fix, and opens a PR — all without you lifting a finger." },
   { step: "04", title: "Full report delivered", desc: "Get a clean bug report with severity ratings, screenshots, and recommended next steps." },
@@ -74,9 +75,10 @@ export default function LandingPage() {
       {/* ── Nav ── */}
       <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/5 backdrop-blur-xl bg-[#060a0f]/80">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <img src="/reviewguard-logo.jpeg" alt="ReviewGuard" className="h-9 w-9 rounded-lg object-cover" />
             <span className="text-xl font-bold tracking-tight">
-              <span className="text-[#00ff88]">Zippy</span>Fixer
+              <span className="text-[#00ff88]">Review</span>Guard
             </span>
             <span className="text-[10px] font-mono text-[#00ff88]/60 border border-[#00ff88]/20 rounded px-1.5 py-0.5">EARLY ACCESS</span>
           </div>
@@ -84,7 +86,7 @@ export default function LandingPage() {
             href="#buy"
             className="btn-shimmer text-black font-semibold text-sm px-4 py-2 rounded-lg transition-opacity hover:opacity-90"
           >
-            Get ZippyFixer — $497
+            Get ReviewGuard — $497
           </a>
         </div>
       </nav>
@@ -97,6 +99,11 @@ export default function LandingPage() {
         </div>
 
         <div className="relative max-w-4xl mx-auto text-center">
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <img src="/reviewguard-logo.jpeg" alt="ReviewGuard" className="h-28 w-28 rounded-2xl object-cover shadow-[0_0_40px_rgba(99,102,241,0.4)]" />
+          </div>
+
           {/* Live badge */}
           <div className="inline-flex items-center gap-2 border border-[#00ff88]/25 bg-[#00ff88]/5 rounded-full px-4 py-1.5 mb-8">
             <span className="w-2 h-2 rounded-full bg-[#00ff88] pulse-dot" />
@@ -104,7 +111,7 @@ export default function LandingPage() {
           </div>
 
           <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
-            <span className="gradient-text">ZippyFixer</span>
+            <span className="gradient-text">ReviewGuard</span>
             <br />
             <span className="text-white/90">Your All-In-One</span>
             <br />
@@ -159,7 +166,7 @@ export default function LandingPage() {
               <span className="gradient-text">automated</span>
             </h2>
             <p className="text-white/40 max-w-xl mx-auto">
-              ZippyFixer combines a real Chromium browser, GitHub code access, and
+              ReviewGuard combines a real Chromium browser, GitHub code access, and
               Groq AI to test, fix, and deploy — all in one tool.
             </p>
           </div>
@@ -250,7 +257,7 @@ export default function LandingPage() {
                 disabled={loading}
                 className="btn-shimmer text-black font-bold text-lg py-4 rounded-xl transition-opacity disabled:opacity-60"
               >
-                {loading ? "Redirecting…" : "Buy ZippyFixer — $497"}
+                {loading ? "Redirecting…" : "Buy ReviewGuard — $497"}
               </button>
             </form>
           </div>
