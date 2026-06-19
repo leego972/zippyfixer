@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import LeegoFooter from "@/components/LeegoFooter";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const API_ORIGIN = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+const BASE = API_ORIGIN || import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function SuccessPage() {
   const [location] = useLocation();
@@ -50,7 +51,7 @@ export default function SuccessPage() {
                 If you just paid, wait a moment and refresh. If this persists,
                 contact support with your Stripe receipt.
               </p>
-              <a href="/" className="text-[#00ff88] underline underline-offset-4 text-sm">← Back to ZippyFixer</a>
+              <a href="/" className="text-[#00ff88] underline underline-offset-4 text-sm">← Back to ReviewGuard</a>
             </>
           )}
 
@@ -74,10 +75,10 @@ export default function SuccessPage() {
               <div className="bg-white/[0.03] border border-[#00ff88]/20 rounded-2xl p-8 mb-6 text-left space-y-4">
                 <h2 className="font-semibold text-white mb-4 text-center">How to get started</h2>
                 {[
-                  { n: "1", t: "Download ZippyFixer", d: "Click the button below to get your ZIP file." },
+                  { n: "1", t: "Download ReviewGuard", d: "Click the button below to get your ZIP file." },
                   { n: "2", t: "Unzip and install", d: "Run install.sh (Mac/Linux) or install.bat (Windows) — it handles everything." },
                   { n: "3", t: "Start testing", d: "Run start.sh and open http://localhost:3747 in your browser." },
-                  { n: "4", t: "Connect GitHub & Railway", d: "Paste your tokens in Settings — ZippyFixer will read your repos and fix bugs." },
+                  { n: "4", t: "Connect GitHub & Railway", d: "Paste your tokens in Settings — ReviewGuard will read your repos and fix bugs." },
                 ].map(s => (
                   <div key={s.n} className="flex gap-4">
                     <span className="w-6 h-6 rounded-full bg-[#00ff88]/10 border border-[#00ff88]/30 text-[#00ff88] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{s.n}</span>
@@ -93,7 +94,7 @@ export default function SuccessPage() {
                 href={downloadUrl}
                 className="btn-shimmer text-black font-bold text-lg px-10 py-4 rounded-xl inline-block transition-opacity hover:opacity-90 mb-4"
               >
-                ⬇ Download ZippyFixer.zip
+                ⬇ Download ReviewGuard.zip
               </a>
 
               <p className="text-xs text-white/20">
