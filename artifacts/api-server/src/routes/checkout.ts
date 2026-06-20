@@ -16,6 +16,7 @@ function getStripe() {
 }
 
 function getBaseUrl(req: any) {
+  if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL.replace(/\/$/, "");
   const domains = process.env.REPLIT_DOMAINS?.split(",")[0];
   if (domains) return `https://${domains}`;
   return `${req.protocol}://${req.get("host")}`;
@@ -40,7 +41,7 @@ router.post("/create-session", async (req, res) => {
             currency: "usd",
             unit_amount: 49700,
             product_data: {
-              name: "ZippyFixer — AI Beta Testing Tool",
+              name: "ReviewGuard — AI Beta Testing Tool",
               description:
                 "Standalone AI-powered QA tool with GitHub & Railway integration. One-time purchase, runs locally. Bring your own AI key (OpenAI, Anthropic, Groq, OpenRouter).",
               images: [],
@@ -129,14 +130,14 @@ router.get("/download/:token", async (req, res) => {
       return res.status(403).json({ error: "Invalid or expired download token" });
     }
 
-    const zipPath = path.resolve(process.cwd(), "zippyfixer.zip");
+    const zipPath = path.resolve(process.cwd(), "reviewguard.zip");
 
     if (!fs.existsSync(zipPath)) {
       return res.status(503).json({ error: "Download not yet available — contact support" });
     }
 
     res.setHeader("Content-Type", "application/zip");
-    res.setHeader("Content-Disposition", 'attachment; filename="ZippyFixer.zip"');
+    res.setHeader("Content-Disposition", 'attachment; filename="ReviewGuard.zip"');
     fs.createReadStream(zipPath).pipe(res);
   } catch (err: any) {
     logger.error({ err }, "download failed");
