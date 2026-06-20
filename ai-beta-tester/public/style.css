@@ -213,9 +213,53 @@ select option { background: var(--bg3); }
 .login-creds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .sub-label { font-size: 12px; color: var(--text2); margin-bottom: 5px; display: block; }
 
+/* TOP-LEVEL VIEW TABS */
+.top-tabs { display: flex; gap: 6px; margin-bottom: 24px; }
+.top-tab {
+  padding: 9px 20px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg3); color: var(--text2); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+}
+.top-tab:hover { border-color: var(--accent); color: var(--text); }
+.top-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* COLLAPSIBLE SECTIONS */
+.collapsible-trigger { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+.collapsible-trigger:hover .integration-title { color: #fff; }
+.collapse-arrow { color: var(--text2); font-size: 11px; transition: transform 0.2s; }
+.collapsible-body { overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s; max-height: 600px; opacity: 1; margin-top: 12px; }
+.collapsible-body.collapsed { max-height: 0; opacity: 0; margin-top: 0; pointer-events: none; }
+
+/* NOTIFICATION GRIDS */
+.notify-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.notify-email-section { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.email-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* SCHEDULE CARDS */
+.schedule-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+.schedule-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.schedule-url { font-size: 13px; font-weight: 600; color: var(--text); word-break: break-all; }
+.schedule-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+.sched-badge { font-size: 11px; background: var(--bg3); border: 1px solid var(--border); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-family: monospace; }
+.sched-provider { font-size: 11px; color: var(--text2); }
+.sched-notify { font-size: 11px; background: rgba(34,197,94,0.1); color: var(--low); padding: 2px 6px; border-radius: 4px; }
+.schedule-date { font-size: 11px; color: #4a4f6a; }
+
+/* ERROR BANNER */
+.error-banner { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--critical); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; margin-top: 10px; }
+
+/* DANGER BUTTON */
+.btn-danger { color: var(--critical) !important; border-color: rgba(239,68,68,0.3) !important; }
+.btn-danger:hover { background: rgba(239,68,68,0.1) !important; border-color: var(--critical) !important; }
+
+/* SECTION DESCRIPTION */
+.section-desc { color: var(--text2); font-size: 13px; margin-bottom: 22px; margin-top: -10px; line-height: 1.6; }
+
 @media (max-width: 700px) {
   .form-grid { grid-template-columns: 1fr; }
   .stats-row { grid-template-columns: repeat(3, 1fr); }
   .session-body { grid-template-columns: 1fr; }
   .login-creds-grid { grid-template-columns: 1fr; }
+  .notify-grid { grid-template-columns: 1fr; }
+  .email-grid { grid-template-columns: 1fr; }
 }
