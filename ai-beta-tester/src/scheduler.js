@@ -63,8 +63,8 @@ class Scheduler {
   }
 
   list() {
-    return [...this.schedules.values()].map(({ id, url, cronExpression, notify, createdAt }) => ({
-      id, url, cronExpression, notify, createdAt,
+    return [...this.schedules.values()].map(({ id, url, provider, model, testDepth, cronExpression, notify, createdAt }) => ({
+      id, url, provider, model, testDepth, cronExpression, notify, createdAt,
     }));
   }
 }
