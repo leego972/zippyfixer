@@ -79,6 +79,7 @@ class BrowserController {
       const title = await this.page.title();
       this.logger.logPageVisit(this.page.url(), title);
       this.emit('navigated', { url: this.page.url(), title });
+      this._recordStep('navigate', { url });
       return { url: this.page.url(), title, success: true };
     } catch (err) {
       this.logger.logBug({
@@ -135,6 +136,7 @@ class BrowserController {
       await this.page.waitForTimeout(800);
       this.logger.logAction({ type: 'click', selector, description });
       this.emit('action', { type: 'click', selector, description, url: this.page.url() });
+      this._recordStep('click', { selector, description });
       return { success: true, newUrl: this.page.url() };
     } catch (err) {
       return { success: false, error: err.message };
@@ -154,6 +156,7 @@ class BrowserController {
       await this.page.waitForTimeout(800);
       this.logger.logAction({ type: 'click-text', text, description: `Clicked "${text}"` });
       this.emit('action', { type: 'click-text', text, url: this.page.url() });
+      this._recordStep('click_by_text', { text });
       return { success: true, newUrl: this.page.url() };
     } catch (err) {
       return { success: false, error: err.message };
@@ -168,6 +171,7 @@ class BrowserController {
       await this.page.waitForTimeout(400);
       this.logger.logAction({ type: 'fill', selector, value, description: `Filled input with "${value}"` });
       this.emit('action', { type: 'fill', selector, value, url: this.page.url() });
+      this._recordStep('fill_input', { selector, value });
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };
@@ -198,6 +202,7 @@ class BrowserController {
         await this.page.evaluate(() => window.scrollTo(0, 0));
       }
       await this.page.waitForTimeout(400);
+      this._recordStep('scroll', { direction });
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };
@@ -305,6 +310,7 @@ class BrowserController {
 
   /** Scan the current page and known API-key pages to extract API keys for the user. */
   async findApiKeys() {
+    const startUrl = this.page.url();
     const results = [];
     const visited = new Set();
 
