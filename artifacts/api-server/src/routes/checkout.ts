@@ -61,10 +61,10 @@ router.post("/create-session", async (req, res) => {
       downloadToken: "",
     });
 
-    res.json({ url: session.url, sessionId: session.id });
+    return res.json({ url: session.url, sessionId: session.id });
   } catch (err: any) {
     logger.error({ err }, "checkout session creation failed");
-    res.status(500).json({ error: err.message || "Checkout failed" });
+    return res.status(500).json({ error: err.message || "Checkout failed" });
   }
 });
 
@@ -105,10 +105,10 @@ router.get("/verify/:sessionId", async (req, res) => {
       });
     }
 
-    res.json({ paid: true, downloadToken: token, email: session.customer_email });
+    return res.json({ paid: true, downloadToken: token, email: session.customer_email });
   } catch (err: any) {
     logger.error({ err }, "verify purchase failed");
-    res.status(500).json({ error: err.message || "Verification failed" });
+    return res.status(500).json({ error: err.message || "Verification failed" });
   }
 });
 
@@ -138,10 +138,10 @@ router.get("/download/:token", async (req, res) => {
 
     res.setHeader("Content-Type", "application/zip");
     res.setHeader("Content-Disposition", 'attachment; filename="ReviewGuard.zip"');
-    fs.createReadStream(zipPath).pipe(res);
+    return fs.createReadStream(zipPath).pipe(res);
   } catch (err: any) {
     logger.error({ err }, "download failed");
-    res.status(500).json({ error: "Download failed" });
+    return res.status(500).json({ error: "Download failed" });
   }
 });
 
