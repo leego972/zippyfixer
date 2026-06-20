@@ -567,6 +567,158 @@ class BrowserController {
     };
   }
 
+  // ── Visual Regression ────────────────────────────────────────────────────
+  async takeBaseline(name) {
+    const fs = require('fs');
+    const path = require('path');
+    const dir = path.join(process.cwd(), 'baselines');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const file = path.join(dir, `${name.replace(/[^a-z0-9_-]/gi, '_')}.png`);
+    await this.page.screenshot({ path: file, fullPage: true, type: 'png' });
+    this.emit('action', { type: 'baseline', name, url: this.page.url() });
+    return { success: true, saved: file, name };
+  }
+
+  async compareToBaseline(name) {
+    const fs = require('fs');
+    const path = require('path');
+    const { PNG } = require('pngjs');
+    const pixelmatch = require('pixelmatch');
+
+    const baselineFile = path.join(process.cwd(), 'baselines', `${name.replace(/[^a-z0-9_-]/gi, '_')}.png`);
+    if (!fs.existsSync(baselineFile)) return { error: `No baseline found for "${name}". Run take_baseline first.` };
+
+    const currentBuf = await this.page.screenshot({ fullPage: true, type: 'png' });
+    const baseline = PNG.sync.read(fs.readFileSync(baselineFile));
+    const current = PNG.sync.read(currentBuf);
+
+    if (baseline.width !== current.width || baseline.height !== current.height) {
+      return { match: false, reason: `Size changed: baseline ${baseline.width}x${baseline.height} vs current ${current.width}x${current.height}` };
+    }
+
+    const diff = new PNG({ width: baseline.width, height: baseline.height });
+    const numDiff = pixelmatch(baseline.data, current.data, diff.data, baseline.width, baseline.height, { threshold: 0.1 });
+    const totalPixels = baseline.width * baseline.height;
+    const diffPercent = ((numDiff / totalPixels) * 100).toFixed(2);
+
+    const diffFile = path.join(process.cwd(), 'baselines', `${name.replace(/[^a-z0-9_-]/gi, '_')}_diff.png`);
+    fs.writeFileSync(diffFile, PNG.sync.write(diff));
+
+    const match = numDiff < totalPixels * 0.01;
+    this.emit('visual-diff', { name, diffPercent, match, url: this.page.url() });
+    return { match, diffPixels: numDiff, totalPixels, diffPercent: `${diffPercent}%`, diffSaved: diffFile };
+  }
+
+  // ── Multi-page Crawl ──────────────────────────────────────────────────────
+  async crawlSite(maxPages = 10) {
+    const startUrl = this.page.url();
+    const origin = new URL(startUrl).origin;
+    const visited = new Set([startUrl]);
+    const queue = [startUrl];
+    const results = [];
+
+    while (queue.length > 0 && visited.size <= maxPages) {
+      const url = queue.shift();
+      try {
+        await this.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 12000 });
+        await this.page.waitForTimeout(600);
+        const title = await this.page.title();
+        const broken = await this.checkBrokenImages();
+        const links = await this.page.evaluate((orig) =>
+          [...new Set(Array.from(document.querySelectorAll('a[href]'))
+            .map(a => { try { return new URL(a.href).href; } catch { return null; } })
+            .filter(h => h && h.startsWith(orig) && !h.includes('#') && !h.match(/\.(pdf|zip|png|jpg|jpeg|gif|svg|ico|css|js)$/i))
+          )], origin
+        );
+        links.forEach(l => { if (!visited.has(l) && visited.size <= maxPages) { visited.add(l); queue.push(l); } });
+        results.push({ url, title, brokenImages: broken.length, status: 'ok' });
+        this.emit('crawl-page', { url, title, pagesFound: visited.size });
+      } catch (err) {
+        results.push({ url, status: 'error', error: err.message });
+      }
+    }
+
+    await this.page.goto(startUrl, { waitUntil: 'domcontentloaded', timeout: 10000 }).catch(() => {});
+    return { pagesFound: visited.size, pagesTested: results.length, results };
+  }
+
+  // ── API Endpoint Testing ──────────────────────────────────────────────────
+  async testApiEndpoint({ url, method = 'GET', headers = {}, body, expectedStatus, expectedJsonPath }) {
+    const start = Date.now();
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const ms = Date.now() - start;
+      let json = null;
+      try { json = await res.json(); } catch { /* not JSON */ }
+
+      const statusOk = expectedStatus ? res.status === expectedStatus : res.status < 400;
+      let pathOk = true;
+      let pathValue = null;
+      if (expectedJsonPath && json) {
+        const keys = expectedJsonPath.split('.');
+        pathValue = keys.reduce((o, k) => o?.[k], json);
+        pathOk = pathValue !== undefined && pathValue !== null;
+      }
+
+      return { url, method, status: res.status, ms, ok: res.ok, statusOk, pathOk, pathValue, body: json ? JSON.stringify(json).slice(0, 500) : null };
+    } catch (err) {
+      return { url, method, error: err.message, ok: false };
+    }
+  }
+
+  // ── Recording & Replay ────────────────────────────────────────────────────
+  startRecording() {
+    this._recording = [];
+    this._isRecording = true;
+    return { ok: true, message: 'Recording started. All actions will be captured.' };
+  }
+
+  stopRecording(name) {
+    const fs = require('fs');
+    const path = require('path');
+    if (!this._isRecording) return { error: 'Not recording. Call start_recording first.' };
+    this._isRecording = false;
+    const steps = this._recording || [];
+    const dir = path.join(process.cwd(), 'flows');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const file = path.join(dir, `${name.replace(/[^a-z0-9_-]/gi, '_')}.json`);
+    fs.writeFileSync(file, JSON.stringify({ name, steps, recordedAt: new Date().toISOString() }, null, 2));
+    this._recording = [];
+    return { ok: true, name, steps: steps.length, saved: file };
+  }
+
+  async replayFlow(name) {
+    const fs = require('fs');
+    const path = require('path');
+    const file = path.join(process.cwd(), 'flows', `${name.replace(/[^a-z0-9_-]/gi, '_')}.json`);
+    if (!fs.existsSync(file)) return { error: `No recorded flow named "${name}". Record one with start_recording + stop_recording.` };
+    const { steps } = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const results = [];
+    for (const step of steps) {
+      try {
+        let result;
+        if (step.tool === 'navigate') result = await this.navigate(step.args.url);
+        else if (step.tool === 'click') result = await this.click(step.args.selector, step.args.description);
+        else if (step.tool === 'click_by_text') result = await this.clickByText(step.args.text);
+        else if (step.tool === 'fill_input') result = await this.fillInput(step.args.selector, step.args.value);
+        else if (step.tool === 'scroll') result = await this.scroll(step.args.direction);
+        results.push({ tool: step.tool, ok: !result?.error, error: result?.error });
+      } catch (err) {
+        results.push({ tool: step.tool, ok: false, error: err.message });
+      }
+    }
+    const passed = results.filter(r => r.ok).length;
+    return { name, steps: results.length, passed, failed: results.length - passed, results };
+  }
+
+  _recordStep(tool, args) {
+    if (this._isRecording) this._recording.push({ tool, args, ts: Date.now() });
+  }
+
   // ── Helper: find first matching selector ─────────────────────────────────
   async _findSelector(selectors) {
     for (const sel of selectors) {
