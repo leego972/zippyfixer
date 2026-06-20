@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "pnpm install --no-frozen-lockfile && pnpm --filter @workspace/api-server run build"
+    "buildCommand": "pnpm install --no-frozen-lockfile && pnpm --filter @workspace/api-server run build && zip -r reviewguard.zip ai-beta-tester/ -x '*/node_modules/*' -x '*/.git/*' -x '*/reports/*'"
   },
   "deploy": {
     "startCommand": "node --enable-source-maps artifacts/api-server/dist/index.mjs",
