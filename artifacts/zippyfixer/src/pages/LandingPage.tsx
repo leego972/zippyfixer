@@ -8,7 +8,42 @@ const FEATURES = [
   {
     icon: "🧠",
     title: "AI-Driven Browser Testing",
-    desc: "Groq-powered AI clicks every button, fills every form, and navigates every page — just like a real user would.",
+    desc: "Groq-powered AI clicks every button, fills every form, and navigates every page — just like a real senior QA engineer would.",
+  },
+  {
+    icon: "📸",
+    title: "Visual Regression Testing",
+    desc: "Snap pixel-perfect baselines then compare any future state. Catches layout shifts, broken styles, and UI regressions automatically.",
+  },
+  {
+    icon: "🕷",
+    title: "Multi-Page Site Crawl",
+    desc: "Auto-discovers every internal link and tests each page. Get a full site-map with broken images, errors, and status in one pass.",
+  },
+  {
+    icon: "🏆",
+    title: "Full Lighthouse Audit",
+    desc: "Real Performance, Accessibility, Best Practices, and SEO scores plus Core Web Vitals (LCP, CLS, FCP) via Google PageSpeed Insights.",
+  },
+  {
+    icon: "🔌",
+    title: "API Endpoint Testing",
+    desc: "Test any REST or GraphQL endpoint directly — custom headers, methods, body, status code validation, and JSON path assertions.",
+  },
+  {
+    icon: "⏺",
+    title: "Test Recording & Replay",
+    desc: "Record any user flow once, save it as a replayable script, and run it on every deploy to catch regressions automatically.",
+  },
+  {
+    icon: "⏰",
+    title: "Scheduled Monitoring",
+    desc: "Set a cron schedule and ReviewGuard runs automatically — daily, hourly, or weekly — then sends a report when bugs are found.",
+  },
+  {
+    icon: "🔔",
+    title: "Slack & Discord Alerts",
+    desc: "Get a formatted bug summary posted to your Slack channel or Discord server the moment a test finishes.",
   },
   {
     icon: "🐙",
@@ -21,19 +56,14 @@ const FEATURES = [
     desc: "Check deployment status, read runtime logs, and trigger redeploys — all in the same testing session.",
   },
   {
+    icon: "▲",
+    title: "Vercel Integration",
+    desc: "List projects, inspect deployments, fetch build logs, and trigger redeploys directly from your testing session.",
+  },
+  {
     icon: "🔍",
     title: "Deep Bug Detection",
-    desc: "Broken links, missing images, console errors, JS crashes, accessibility violations — nothing escapes ReviewGuard.",
-  },
-  {
-    icon: "📸",
-    title: "Screenshot Evidence",
-    desc: "Every bug comes with a screenshot. Full visual report so you know exactly what went wrong and where.",
-  },
-  {
-    icon: "📋",
-    title: "Instant Bug Reports",
-    desc: "Professional reports exported in seconds. Share with your team or log directly as GitHub Issues.",
+    desc: "Broken links, missing images, console errors, JS crashes, accessibility violations, cookie issues — nothing escapes ReviewGuard.",
   },
 ];
 
@@ -148,11 +178,15 @@ export default function LandingPage() {
           </div>
 
           {/* Social proof strip */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-12 text-xs text-white/30 font-mono">
-            <span>✓ Playwright browser automation</span>
-            <span>✓ GitHub read · write · merge PRs</span>
-            <span>✓ Railway MCP integration</span>
-            <span>✓ Login & API key extraction</span>
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-12 text-xs text-white/30 font-mono">
+            <span>✓ Visual regression testing</span>
+            <span>✓ Full Lighthouse audit</span>
+            <span>✓ Multi-page site crawl</span>
+            <span>✓ API endpoint testing</span>
+            <span>✓ Scheduled monitoring</span>
+            <span>✓ Slack &amp; Discord alerts</span>
+            <span>✓ GitHub · Railway · Vercel</span>
+            <span>✓ Test recording &amp; replay</span>
           </div>
         </div>
       </section>
@@ -228,11 +262,16 @@ export default function LandingPage() {
               {[
                 "Full standalone Node.js app — runs on your machine",
                 "Real Chromium browser via Playwright",
-                "Logs into sites to find your API keys automatically",
+                "Visual regression testing — pixel-perfect baseline comparison",
+                "Multi-page crawl — auto-test every internal link",
+                "Full Lighthouse audit — Performance, A11y, SEO, CWV",
+                "API endpoint testing — REST & GraphQL, status & JSON assertions",
+                "Test recording & replay — record once, run forever",
+                "Scheduled monitoring — cron-based auto-tests",
+                "Slack & Discord alerts — instant bug reports to your team",
                 "GitHub: read code, write fixes, open & merge PRs",
-                "Railway MCP: auto-discover & trigger deployments",
-                "SEO, accessibility, performance & mobile checks",
-                "Live project log — every bug, fix & action tracked",
+                "Railway + Vercel integrations: deployments, logs, redeploys",
+                "Email notifications via SMTP",
                 "Works with any AI provider you already pay for",
                 "Unlimited sites · All future updates included",
               ].map(item => (
