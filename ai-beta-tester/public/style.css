@@ -227,7 +227,7 @@ select option { background: var(--bg3); }
 .collapsible-trigger { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
 .collapsible-trigger:hover .integration-title { color: #fff; }
 .collapse-arrow { color: var(--text2); font-size: 11px; transition: transform 0.2s; }
-.collapsible-body { overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s; max-height: 600px; opacity: 1; margin-top: 12px; }
+.collapsible-body { overflow: hidden; transition: max-height 0.3s ease, opacity 0.2s; max-height: 800px; opacity: 1; margin-top: 12px; }
 .collapsible-body.collapsed { max-height: 0; opacity: 0; margin-top: 0; pointer-events: none; }
 
 /* NOTIFICATION GRIDS */
