@@ -1,5 +1,6 @@
 const { GitHubClient } = require('./github');
 const { RailwayClient } = require('./railway');
+const { VercelClient } = require('./vercel');
 
 const TOOLS = [
   // ── Browser tools ──
@@ -180,6 +181,125 @@ const TOOLS = [
     name: 'check_cookies',
     description: 'List all cookies set for the current page and flag any security issues (missing HttpOnly, Secure, SameSite)',
     parameters: { type: 'object', properties: {} },
+  },
+
+  // ── Visual Regression ──
+  {
+    name: 'take_baseline',
+    description: 'Take a full-page PNG screenshot and save it as the visual baseline for a named page. Run this first before making changes, then use compare_to_baseline after to detect visual regressions.',
+    parameters: {
+      type: 'object',
+      properties: { name: { type: 'string', description: 'Unique name for this baseline (e.g. "homepage", "login-page")' } },
+      required: ['name'],
+    },
+  },
+  {
+    name: 'compare_to_baseline',
+    description: 'Compare the current page screenshot to a saved baseline. Returns the % of pixels that changed and whether the pages match (within 1% threshold). Saves a diff image.',
+    parameters: {
+      type: 'object',
+      properties: { name: { type: 'string', description: 'Baseline name to compare against (same name used in take_baseline)' } },
+      required: ['name'],
+    },
+  },
+
+  // ── Multi-page Crawl ──
+  {
+    name: 'crawl_site',
+    description: 'Automatically discover and test all pages on the current site. Follows internal links, checks broken images on each page, and returns a full site map.',
+    parameters: {
+      type: 'object',
+      properties: { maxPages: { type: 'number', description: 'Maximum number of pages to crawl (default: 10, max recommended: 30)' } },
+    },
+  },
+
+  // ── Lighthouse / Performance ──
+  {
+    name: 'run_lighthouse',
+    description: 'Run a full Lighthouse-style audit on the current URL using Google PageSpeed Insights. Returns real scores for Performance, Accessibility, Best Practices, and SEO plus Core Web Vitals.',
+    parameters: {
+      type: 'object',
+      properties: {
+        strategy: { type: 'string', enum: ['mobile', 'desktop'], description: 'Test on mobile or desktop (default: mobile)' },
+      },
+    },
+  },
+
+  // ── API Endpoint Testing ──
+  {
+    name: 'test_api_endpoint',
+    description: 'Test a REST or GraphQL API endpoint directly. Checks status code, response time, and optionally validates a JSON path exists in the response.',
+    parameters: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', description: 'Full API endpoint URL' },
+        method: { type: 'string', enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], description: 'HTTP method (default: GET)' },
+        headers: { type: 'object', description: 'Request headers as key-value pairs (e.g. Authorization, Content-Type)' },
+        body: { type: 'object', description: 'Request body (JSON object, for POST/PUT/PATCH)' },
+        expectedStatus: { type: 'number', description: 'Expected HTTP status code (e.g. 200, 201)' },
+        expectedJsonPath: { type: 'string', description: 'Dot-notation JSON path to verify exists in response (e.g. "data.id" or "items.0.name")' },
+      },
+      required: ['url'],
+    },
+  },
+
+  // ── Recording & Replay ──
+  {
+    name: 'start_recording',
+    description: 'Start recording all browser actions (navigate, click, fill, scroll) into a replayable test flow.',
+    parameters: { type: 'object', properties: {} },
+  },
+  {
+    name: 'stop_recording',
+    description: 'Stop recording and save the captured flow to disk with the given name. The flow can later be replayed with replay_flow.',
+    parameters: {
+      type: 'object',
+      properties: { name: { type: 'string', description: 'Name for this recorded flow (e.g. "checkout-flow", "login-test")' } },
+      required: ['name'],
+    },
+  },
+  {
+    name: 'replay_flow',
+    description: 'Replay a previously recorded test flow step-by-step and report which steps passed or failed.',
+    parameters: {
+      type: 'object',
+      properties: { name: { type: 'string', description: 'Name of the flow to replay (must match a name used in stop_recording)' } },
+      required: ['name'],
+    },
+  },
+
+  // ── Vercel tools ──
+  {
+    name: 'vercel_list_projects',
+    description: 'List all Vercel projects for the authenticated token',
+    parameters: { type: 'object', properties: {} },
+  },
+  {
+    name: 'vercel_get_deployments',
+    description: 'Get recent deployments for a Vercel project',
+    parameters: {
+      type: 'object',
+      properties: { projectId: { type: 'string', description: 'Vercel project ID' } },
+      required: ['projectId'],
+    },
+  },
+  {
+    name: 'vercel_get_logs',
+    description: 'Get logs for a specific Vercel deployment',
+    parameters: {
+      type: 'object',
+      properties: { deploymentId: { type: 'string', description: 'Vercel deployment ID (uid from vercel_get_deployments)' } },
+      required: ['deploymentId'],
+    },
+  },
+  {
+    name: 'vercel_redeploy',
+    description: 'Trigger a redeployment on Vercel for a specific deployment',
+    parameters: {
+      type: 'object',
+      properties: { deploymentId: { type: 'string', description: 'Vercel deployment ID to redeploy' } },
+      required: ['deploymentId'],
+    },
   },
 
   // ── GitHub tools ──
@@ -423,7 +543,7 @@ function buildSystemPrompt(url, instructions, testDepth, hasGitHub, hasRailway, 
   const actionTargets = { quick: '10–15', standard: '25–40', deep: '50–70' };
   const hasLogin = !!(loginEmail && loginPassword);
 
-  return `You are Zippy — an expert QA engineer, beta tester, and developer. You test websites like a real user AND fix bugs directly in the source code when given access.
+  return `You are Guard — an expert QA engineer, beta tester, and developer. You test websites like a real user AND fix bugs directly in the source code when given access.
 
 TARGET: ${url}
 DEPTH: ${depth.toUpperCase()} (aim for ${actionTargets[depth] || '25–40'} meaningful actions)
@@ -465,7 +585,7 @@ LOGIN & API KEY WORKFLOW (when user provides credentials):
 - Call login with the site URL, username, and password to access their account
 - After login, call find_api_keys to scan for keys on the dashboard/settings pages
 - Present any keys found clearly in the summary
-- You can use this for OpenAI, Anthropic, Zippy/Groq, Railway, Stripe, GitHub, and more
+- You can use this for OpenAI, Anthropic, Guard/Groq, Railway, Stripe, GitHub, and more
 
 ADDITIONAL CHECKS (run on every page):
 - check_seo — flag missing/bad title, description, og:image
@@ -602,6 +722,23 @@ async function executeTool(name, args, browser, logger, emit, tokens = {}) {
     }
   }
 
+  // Vercel tools
+  if (name.startsWith('vercel_')) {
+    if (!tokens.vercel) return { error: 'No Vercel token provided. Enter your Vercel token in the form.' };
+    const vc = new VercelClient(tokens.vercel);
+    try {
+      switch (name) {
+        case 'vercel_list_projects':   return await vc.listProjects();
+        case 'vercel_get_deployments': return await vc.getDeployments(args.projectId);
+        case 'vercel_get_logs':        return await vc.getLogs(args.deploymentId);
+        case 'vercel_redeploy':        return await vc.redeployProject(args.deploymentId);
+        default: return { error: `Unknown Vercel tool: ${name}` };
+      }
+    } catch (err) {
+      return { error: err.message };
+    }
+  }
+
   // Browser & logging tools
   try {
     switch (name) {
@@ -630,6 +767,60 @@ async function executeTool(name, args, browser, logger, emit, tokens = {}) {
       case 'get_element_text':      return await browser.getElementText(args.selector);
       case 'find_text_on_page':     return await browser.findTextOnPage(args.text);
       case 'check_cookies':         return await browser.checkCookies();
+
+      // ── Visual Regression ──
+      case 'take_baseline':         return await browser.takeBaseline(args.name);
+      case 'compare_to_baseline':   return await browser.compareToBaseline(args.name);
+
+      // ── Multi-page Crawl ──
+      case 'crawl_site':            return await browser.crawlSite(args.maxPages || 10);
+
+      // ── Lighthouse ──
+      case 'run_lighthouse': {
+        const url = browser.page.url();
+        const strategy = args.strategy || 'mobile';
+        try {
+          const res = await fetch(
+            `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=${strategy}`
+          );
+          const data = await res.json();
+          if (data.error) return { error: data.error.message };
+          const cats = data.lighthouseResult?.categories || {};
+          const audits = data.lighthouseResult?.audits || {};
+          return {
+            url,
+            strategy,
+            scores: {
+              performance: Math.round((cats.performance?.score || 0) * 100),
+              accessibility: Math.round((cats.accessibility?.score || 0) * 100),
+              bestPractices: Math.round((cats['best-practices']?.score || 0) * 100),
+              seo: Math.round((cats.seo?.score || 0) * 100),
+            },
+            coreWebVitals: {
+              lcp: audits['largest-contentful-paint']?.displayValue,
+              fid: audits['max-potential-fid']?.displayValue,
+              cls: audits['cumulative-layout-shift']?.displayValue,
+              fcp: audits['first-contentful-paint']?.displayValue,
+              tbt: audits['total-blocking-time']?.displayValue,
+              tti: audits['interactive']?.displayValue,
+            },
+            opportunities: Object.values(audits)
+              .filter(a => a.score !== null && a.score < 0.9 && a.details?.type === 'opportunity')
+              .slice(0, 8)
+              .map(a => ({ title: a.title, description: a.description?.split('.')[0], savings: a.displayValue })),
+          };
+        } catch (err) {
+          return { error: `Lighthouse audit failed: ${err.message}` };
+        }
+      }
+
+      // ── API Endpoint Testing ──
+      case 'test_api_endpoint':     return await browser.testApiEndpoint(args);
+
+      // ── Recording & Replay ──
+      case 'start_recording':       return browser.startRecording();
+      case 'stop_recording':        return browser.stopRecording(args.name);
+      case 'replay_flow':           return await browser.replayFlow(args.name);
 
       case 'log_bug': {
         const bug = logger.logBug({ ...args, url: await browser.currentUrl() });
