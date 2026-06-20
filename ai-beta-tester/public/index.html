@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZippyFixer — Your All-In-One Beta Tester</title>
+  <title>ReviewGuard — Your All-In-One Beta Tester</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,219 +11,350 @@
 
     <header class="header">
       <div class="logo">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <rect width="32" height="32" rx="8" fill="#00ff88"/>
-          <path d="M8 16a8 8 0 0 1 16 0" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
-          <circle cx="16" cy="16" r="3" fill="#000"/>
-          <path d="M10 22l2-2M22 22l-2-2" stroke="#000" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <span class="logo-text">ZippyFixer</span>
+        <img src="/reviewguard-logo.jpeg" alt="ReviewGuard" style="width:36px;height:36px;border-radius:8px;object-fit:cover;" />
+        <span class="logo-text">ReviewGuard</span>
       </div>
       <div class="header-badge">Your All-In-One Beta Tester ⚡</div>
     </header>
 
+    <!-- TOP-LEVEL TABS -->
+    <div class="top-tabs" id="topTabs">
+      <button class="top-tab active" data-view="test" id="topTabTest">🧪 Run Test</button>
+      <button class="top-tab" data-view="schedule" id="topTabSchedule">⏰ Scheduled Monitoring</button>
+    </div>
+
     <main class="main">
 
-      <!-- CONFIG PANEL -->
-      <section class="panel config-panel" id="configPanel">
-        <h2 class="panel-title">New Test Session</h2>
+      <!-- ══════════════════ RUN TEST VIEW ══════════════════ -->
+      <div id="viewTest">
 
-        <!-- Mode tabs -->
-        <div class="mode-tabs" id="modeTabs">
-          <button class="mode-tab active" data-mode="url" id="tabUrl">🌐 Test by URL</button>
-          <button class="mode-tab" data-mode="zip" id="tabZip">📦 Upload ZIP</button>
-        </div>
+        <!-- CONFIG PANEL -->
+        <section class="panel config-panel" id="configPanel">
+          <h2 class="panel-title">New Test Session</h2>
 
-        <div class="form-grid">
-
-          <!-- URL mode -->
-          <div class="field full" id="urlField">
-            <label for="url">Target URL <span class="req">*</span></label>
-            <input type="url" id="url" placeholder="https://example.com" />
+          <!-- Mode tabs -->
+          <div class="mode-tabs" id="modeTabs">
+            <button class="mode-tab active" data-mode="url" id="tabUrl">🌐 Test by URL</button>
+            <button class="mode-tab" data-mode="zip" id="tabZip">📦 Upload ZIP</button>
           </div>
 
-          <!-- ZIP mode (hidden by default) -->
-          <div class="field full hidden" id="zipField">
-            <label for="zipFile">Your App ZIP <span class="req">*</span></label>
-            <div class="zip-drop" id="zipDrop">
-              <input type="file" id="zipFile" accept=".zip" />
-              <div class="zip-drop-inner" id="zipDropInner">
-                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="color:var(--text2)">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
-                </svg>
-                <span id="zipLabel">Drop your ZIP here or click to browse</span>
-                <small>Node.js apps or static HTML — max 500MB</small>
+          <div class="form-grid">
+
+            <!-- URL mode -->
+            <div class="field full" id="urlField">
+              <label for="url">Target URL <span class="req">*</span></label>
+              <input type="url" id="url" placeholder="https://example.com" />
+            </div>
+
+            <!-- ZIP mode -->
+            <div class="field full hidden" id="zipField">
+              <label for="zipFile">Your App ZIP <span class="req">*</span></label>
+              <div class="zip-drop" id="zipDrop">
+                <input type="file" id="zipFile" accept=".zip" />
+                <div class="zip-drop-inner" id="zipDropInner">
+                  <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="color:var(--text2)">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                  </svg>
+                  <span id="zipLabel">Drop your ZIP here or click to browse</span>
+                  <small>Node.js apps or static HTML — max 500MB</small>
+                </div>
               </div>
+              <small class="hint">ReviewGuard will extract, install dependencies, and start your app automatically — then test it.</small>
             </div>
-            <small class="hint">ZippyFixer will extract, install dependencies, and start your app automatically — then test it.</small>
-          </div>
 
-          <div class="field">
-            <label for="provider">AI Provider <span class="req">*</span></label>
-            <select id="provider">
-              <option value="groq" selected>Zippy (fast + free tier — llama-3.3-70b)</option>
-              <option value="openai">OpenAI (ChatGPT)</option>
-              <option value="anthropic">Anthropic (Claude)</option>
-              <option value="openrouter">OpenRouter</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="model">Model <small>(leave blank for default)</small></label>
-            <input type="text" id="model" placeholder="e.g. llama-3.3-70b-versatile" />
-          </div>
-
-          <div class="field full">
-            <label for="apiKey">API Key <span class="req">*</span></label>
-            <div class="input-group">
-              <input type="password" id="apiKey" placeholder="gsk_... or sk-..." />
-              <button class="btn-icon" id="toggleKey" title="Show/hide key">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-              </button>
+            <div class="field">
+              <label for="provider">AI Provider <span class="req">*</span></label>
+              <select id="provider">
+                <option value="groq" selected>Guard (fast + free tier — llama-3.3-70b)</option>
+                <option value="openai">OpenAI (ChatGPT)</option>
+                <option value="anthropic">Anthropic (Claude)</option>
+                <option value="openrouter">OpenRouter</option>
+              </select>
             </div>
-            <div class="model-hints" id="modelHints"></div>
-          </div>
 
-          <div class="field">
-            <label for="testDepth">Test Depth</label>
-            <select id="testDepth">
-              <option value="quick">Quick (~10–15 actions)</option>
-              <option value="standard" selected>Standard (~25–40 actions)</option>
-              <option value="deep">Deep (~50–70 actions)</option>
-            </select>
-          </div>
+            <div class="field">
+              <label for="model">Model <small>(leave blank for default)</small></label>
+              <input type="text" id="model" placeholder="e.g. llama-3.3-70b-versatile" />
+            </div>
 
-          <div class="field full">
-            <label for="instructions">Custom Instructions <small>(optional)</small></label>
-            <textarea id="instructions" rows="2" placeholder="e.g. Focus on the checkout flow, test with invalid credentials, check all CTA buttons…"></textarea>
-          </div>
-
-          <!-- GitHub Integration -->
-          <div class="field full integration-section">
-            <div class="integration-header">
-              <span class="integration-title">🐙 GitHub <small>Optional — AI reads code, writes fixes, opens &amp; merges PRs</small></span>
-            </div>
-            <div class="input-group">
-              <input type="password" id="githubToken" placeholder="github_pat_... or ghp_..." />
-              <button class="btn-icon" id="toggleGithub" title="Show/hide token">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-              </button>
-            </div>
-            <small class="hint">Scopes needed: <code>repo</code>, <code>pull_requests</code> — <a href="https://github.com/settings/tokens/new" target="_blank">Create token ↗</a></small>
-          </div>
-
-          <!-- Railway Integration -->
-          <div class="field full integration-section">
-            <div class="integration-header">
-              <span class="integration-title">🚂 Railway <small>Optional — check deployments, read logs, trigger redeploys</small></span>
-            </div>
-            <div class="input-group">
-              <input type="password" id="railwayToken" placeholder="Your Railway API token…" />
-              <button class="btn-icon" id="toggleRailway" title="Show/hide token">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-              </button>
-            </div>
-            <small class="hint">Railway → Account → Tokens — <a href="https://railway.app/account/tokens" target="_blank">Get token ↗</a></small>
-          </div>
-
-          <!-- Login Credentials -->
-          <div class="field full integration-section">
-            <div class="integration-header">
-              <span class="integration-title">🔐 Site Login Credentials <small>Optional — Zippy will log into your app and test authenticated pages</small></span>
-            </div>
-            <div class="login-creds-grid">
-              <div>
-                <label for="loginEmail" class="sub-label">Username / Email</label>
-                <input type="text" id="loginEmail" placeholder="user@example.com" autocomplete="off" />
+            <div class="field full">
+              <label for="apiKey">API Key <span class="req">*</span></label>
+              <div class="input-group">
+                <input type="password" id="apiKey" placeholder="gsk_... or sk-..." />
+                <button class="btn-icon" id="toggleKey" title="Show/hide key">
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
               </div>
-              <div>
-                <label for="loginPassword" class="sub-label">Password</label>
-                <div class="input-group">
-                  <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="off" />
-                  <button class="btn-icon" id="toggleLoginPass" title="Show/hide password">
-                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  </button>
+              <div class="model-hints" id="modelHints"></div>
+            </div>
+
+            <div class="field">
+              <label for="testDepth">Test Depth</label>
+              <select id="testDepth">
+                <option value="quick">Quick (~10–15 actions)</option>
+                <option value="standard" selected>Standard (~25–40 actions)</option>
+                <option value="deep">Deep (~50–70 actions)</option>
+              </select>
+            </div>
+
+            <div class="field full">
+              <label for="instructions">Custom Instructions <small>(optional)</small></label>
+              <textarea id="instructions" rows="2" placeholder="e.g. Focus on the checkout flow, test with invalid credentials, check all CTA buttons…"></textarea>
+            </div>
+
+            <!-- GitHub Integration -->
+            <div class="field full integration-section">
+              <div class="integration-header">
+                <span class="integration-title">🐙 GitHub <small>Optional — AI reads code, writes fixes, opens &amp; merges PRs</small></span>
+              </div>
+              <div class="input-group">
+                <input type="password" id="githubToken" placeholder="github_pat_... or ghp_..." />
+                <button class="btn-icon" id="toggleGithub" title="Show/hide token">
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <small class="hint">Scopes needed: <code>repo</code>, <code>pull_requests</code> — <a href="https://github.com/settings/tokens/new" target="_blank">Create token ↗</a></small>
+            </div>
+
+            <!-- Railway Integration -->
+            <div class="field full integration-section">
+              <div class="integration-header">
+                <span class="integration-title">🚂 Railway <small>Optional — check deployments, read logs, trigger redeploys</small></span>
+              </div>
+              <div class="input-group">
+                <input type="password" id="railwayToken" placeholder="Your Railway API token…" />
+                <button class="btn-icon" id="toggleRailway" title="Show/hide token">
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <small class="hint">Railway → Account → Tokens — <a href="https://railway.app/account/tokens" target="_blank">Get token ↗</a></small>
+            </div>
+
+            <!-- Vercel Integration -->
+            <div class="field full integration-section">
+              <div class="integration-header">
+                <span class="integration-title">▲ Vercel <small>Optional — list projects, check deployments, read logs, trigger redeploys</small></span>
+              </div>
+              <div class="input-group">
+                <input type="password" id="vercelToken" placeholder="Your Vercel API token…" />
+                <button class="btn-icon" id="toggleVercel" title="Show/hide token">
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <small class="hint">Vercel → Settings → Tokens — <a href="https://vercel.com/account/tokens" target="_blank">Create token ↗</a></small>
+            </div>
+
+            <!-- Login Credentials -->
+            <div class="field full integration-section">
+              <div class="integration-header">
+                <span class="integration-title">🔐 Site Login Credentials <small>Optional — Guard logs into your app and tests authenticated pages</small></span>
+              </div>
+              <div class="login-creds-grid">
+                <div>
+                  <label for="loginEmail" class="sub-label">Username / Email</label>
+                  <input type="text" id="loginEmail" placeholder="user@example.com" autocomplete="off" />
+                </div>
+                <div>
+                  <label for="loginPassword" class="sub-label">Password</label>
+                  <div class="input-group">
+                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="off" />
+                    <button class="btn-icon" id="toggleLoginPass" title="Show/hide password">
+                      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <small class="hint">Credentials are used only for this session and never stored on disk.</small>
+            </div>
+
+            <!-- Notifications (collapsible) -->
+            <div class="field full integration-section">
+              <div class="integration-header collapsible-trigger" id="notifyToggle">
+                <span class="integration-title">🔔 Notifications <small>Optional — get Slack/Discord/email report when test finishes</small></span>
+                <span class="collapse-arrow" id="notifyArrow">▼</span>
+              </div>
+              <div id="notifyBody" class="collapsible-body collapsed">
+                <div class="notify-grid">
+                  <div class="field">
+                    <label class="sub-label">Slack Webhook URL</label>
+                    <input type="text" id="slackWebhook" placeholder="https://hooks.slack.com/services/…" />
+                    <small class="hint"><a href="https://api.slack.com/messaging/webhooks" target="_blank">Create Slack webhook ↗</a></small>
+                  </div>
+                  <div class="field">
+                    <label class="sub-label">Discord Webhook URL</label>
+                    <input type="text" id="discordWebhook" placeholder="https://discord.com/api/webhooks/…" />
+                    <small class="hint">Discord channel → Edit → Integrations → Webhooks</small>
+                  </div>
+                </div>
+                <div class="notify-email-section">
+                  <div class="sub-label" style="margin-bottom:8px;color:var(--text2);font-size:12px;text-transform:uppercase;letter-spacing:.05em;">Email Report (SMTP)</div>
+                  <div class="email-grid">
+                    <div class="field">
+                      <label class="sub-label">Send To</label>
+                      <input type="email" id="emailTo" placeholder="you@example.com" />
+                    </div>
+                    <div class="field">
+                      <label class="sub-label">SMTP Host</label>
+                      <input type="text" id="smtpHost" placeholder="smtp.gmail.com" />
+                    </div>
+                    <div class="field">
+                      <label class="sub-label">Port</label>
+                      <input type="number" id="smtpPort" placeholder="587" value="587" style="max-width:90px" />
+                    </div>
+                    <div class="field">
+                      <label class="sub-label">SMTP Username</label>
+                      <input type="text" id="smtpUser" placeholder="you@gmail.com" />
+                    </div>
+                    <div class="field">
+                      <label class="sub-label">SMTP Password / App Password</label>
+                      <input type="password" id="smtpPass" placeholder="••••••••••••" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <small class="hint">Credentials are used only for this session and never stored on disk.</small>
+
           </div>
-        </div>
 
-        <div class="form-actions">
-          <button class="btn-primary" id="startBtn">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <polygon points="5,3 19,12 5,21"/>
-            </svg>
-            Start ZippyFixer
-          </button>
-        </div>
-      </section>
-
-      <!-- LIVE SESSION -->
-      <section class="panel session-panel hidden" id="sessionPanel">
-        <div class="session-header">
-          <div>
-            <h2 class="panel-title" id="sessionTitle">Testing…</h2>
-            <div class="session-meta" id="sessionMeta"></div>
+          <div class="form-actions">
+            <button class="btn-primary" id="startBtn">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polygon points="5,3 19,12 5,21"/></svg>
+              Start ReviewGuard
+            </button>
           </div>
-          <div class="session-actions">
-            <button class="btn-secondary" id="stopBtn">Stop</button>
-            <button class="btn-secondary hidden" id="newTestBtn">← New Test</button>
-          </div>
-        </div>
+        </section>
 
-        <div class="stats-row" id="statsRow">
-          <div class="stat-card"><div class="stat-value" id="statActions">0</div><div class="stat-label">Actions</div></div>
-          <div class="stat-card critical"><div class="stat-value" id="statCritical">0</div><div class="stat-label">Critical</div></div>
-          <div class="stat-card high"><div class="stat-value" id="statHigh">0</div><div class="stat-label">High</div></div>
-          <div class="stat-card medium"><div class="stat-value" id="statMedium">0</div><div class="stat-label">Medium</div></div>
-          <div class="stat-card low"><div class="stat-value" id="statLow">0</div><div class="stat-label">Low</div></div>
-          <div class="stat-card pages"><div class="stat-value" id="statPages">0</div><div class="stat-label">Pages</div></div>
-        </div>
-
-        <div class="session-body">
-          <div class="log-panel">
-            <div class="log-panel-header">
-              <span class="pulse-dot" id="pulseDot"></span>
-              <span id="logStatus">Initializing…</span>
+        <!-- LIVE SESSION -->
+        <section class="panel session-panel hidden" id="sessionPanel">
+          <div class="session-header">
+            <div>
+              <h2 class="panel-title" id="sessionTitle">Testing…</h2>
+              <div class="session-meta" id="sessionMeta"></div>
             </div>
-            <div class="log-scroll" id="logScroll"></div>
-          </div>
-          <div class="bugs-panel">
-            <div class="bugs-header">
-              <h3>Bugs Found <span class="bug-count" id="bugCount">0</span></h3>
-              <button class="btn-sm hidden" id="exportBtn">Export JSON</button>
-            </div>
-            <div class="bugs-list" id="bugsList">
-              <div class="empty-bugs">No bugs found yet…</div>
+            <div class="session-actions">
+              <button class="btn-secondary" id="stopBtn">Stop</button>
+              <button class="btn-secondary hidden" id="newTestBtn">← New Test</button>
             </div>
           </div>
-        </div>
 
-        <div class="summary-panel hidden" id="summaryPanel">
-          <h3>Test Summary</h3>
-          <div class="summary-text" id="summaryText"></div>
-          <div class="report-actions">
-            <button class="btn-primary" id="exportHtmlBtn">Export HTML Report</button>
-            <button class="btn-secondary" id="exportProjectLogBtn">📋 Download Project Log</button>
-            <button class="btn-secondary" id="exportJsonBtn2">Export JSON</button>
-            <button class="btn-secondary" id="newTestBtn2">← New Test</button>
+          <div class="stats-row" id="statsRow">
+            <div class="stat-card"><div class="stat-value" id="statActions">0</div><div class="stat-label">Actions</div></div>
+            <div class="stat-card critical"><div class="stat-value" id="statCritical">0</div><div class="stat-label">Critical</div></div>
+            <div class="stat-card high"><div class="stat-value" id="statHigh">0</div><div class="stat-label">High</div></div>
+            <div class="stat-card medium"><div class="stat-value" id="statMedium">0</div><div class="stat-label">Medium</div></div>
+            <div class="stat-card low"><div class="stat-value" id="statLow">0</div><div class="stat-label">Low</div></div>
+            <div class="stat-card pages"><div class="stat-value" id="statPages">0</div><div class="stat-label">Pages</div></div>
           </div>
-        </div>
-      </section>
+
+          <div class="session-body">
+            <div class="log-panel">
+              <div class="log-panel-header">
+                <span class="pulse-dot" id="pulseDot"></span>
+                <span id="logStatus">Initializing…</span>
+              </div>
+              <div class="log-scroll" id="logScroll"></div>
+            </div>
+            <div class="bugs-panel">
+              <div class="bugs-header">
+                <h3>Bugs Found <span class="bug-count" id="bugCount">0</span></h3>
+                <button class="btn-sm hidden" id="exportBtn">Export JSON</button>
+              </div>
+              <div class="bugs-list" id="bugsList">
+                <div class="empty-bugs">No bugs found yet…</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-panel hidden" id="summaryPanel">
+            <h3>Test Summary</h3>
+            <div class="summary-text" id="summaryText"></div>
+            <div class="report-actions">
+              <button class="btn-primary" id="exportHtmlBtn">Export HTML Report</button>
+              <button class="btn-secondary" id="exportProjectLogBtn">📋 Download Project Log</button>
+              <button class="btn-secondary" id="exportJsonBtn2">Export JSON</button>
+              <button class="btn-secondary" id="newTestBtn2">← New Test</button>
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /viewTest -->
+
+      <!-- ══════════════════ SCHEDULE VIEW ══════════════════ -->
+      <div id="viewSchedule" class="hidden">
+        <section class="panel">
+          <h2 class="panel-title">⏰ Scheduled Monitoring</h2>
+          <p class="section-desc">Set up recurring tests that run automatically and send notifications when bugs are found.</p>
+
+          <div class="form-grid">
+            <div class="field full">
+              <label for="schUrl">Target URL <span class="req">*</span></label>
+              <input type="url" id="schUrl" placeholder="https://example.com" />
+            </div>
+            <div class="field">
+              <label for="schProvider">AI Provider <span class="req">*</span></label>
+              <select id="schProvider">
+                <option value="groq" selected>Guard (llama-3.3-70b)</option>
+                <option value="openai">OpenAI (ChatGPT)</option>
+                <option value="anthropic">Anthropic (Claude)</option>
+                <option value="openrouter">OpenRouter</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="schDepth">Test Depth</label>
+              <select id="schDepth">
+                <option value="quick">Quick (~10–15 actions)</option>
+                <option value="standard" selected>Standard (~25–40 actions)</option>
+                <option value="deep">Deep (~50–70 actions)</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="schApiKey">API Key <span class="req">*</span></label>
+              <input type="password" id="schApiKey" placeholder="gsk_... or sk-..." />
+            </div>
+            <div class="field full">
+              <label for="schCron">Schedule (Cron Expression) <span class="req">*</span></label>
+              <input type="text" id="schCron" placeholder="0 9 * * *" />
+              <small class="hint">
+                <strong>Examples:</strong>
+                <code>0 9 * * *</code> = every day at 9am &nbsp;·&nbsp;
+                <code>*/30 * * * *</code> = every 30 minutes &nbsp;·&nbsp;
+                <code>0 9 * * 1-5</code> = weekdays at 9am
+              </small>
+            </div>
+            <div class="field full integration-section">
+              <div class="integration-header">
+                <span class="integration-title">🔔 Notify on completion</span>
+              </div>
+              <div class="notify-grid" style="margin-top:10px">
+                <div class="field">
+                  <label class="sub-label">Slack Webhook URL</label>
+                  <input type="text" id="schSlack" placeholder="https://hooks.slack.com/services/…" />
+                </div>
+                <div class="field">
+                  <label class="sub-label">Discord Webhook URL</label>
+                  <input type="text" id="schDiscord" placeholder="https://discord.com/api/webhooks/…" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" id="addScheduleBtn">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Add Schedule
+            </button>
+          </div>
+
+          <div id="scheduleError" class="error-banner hidden"></div>
+
+          <div id="scheduleList" style="margin-top:24px">
+            <h3 style="color:var(--text1);font-size:14px;font-weight:600;margin-bottom:12px;">Active Schedules</h3>
+            <div id="scheduleItems">
+              <div class="empty-bugs" style="text-align:center;padding:24px">No scheduled tests yet.</div>
+            </div>
+          </div>
+        </section>
+      </div><!-- /viewSchedule -->
 
     </main>
   </div>
