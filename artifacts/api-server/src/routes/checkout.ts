@@ -225,13 +225,13 @@ router.get("/verify/:sessionId", async (req, res) => {
     if (existing) {
       await db
         .update(purchases)
-        .set({ downloadToken: token, stripePaymentIntentId })
+        .set({ stripePaymentIntentId: stripePaymentIntentId ?? null, downloadToken: token })
         .where(eq(purchases.stripeSessionId, sessionId));
     } else {
       await db.insert(purchases).values({
         email,
         stripeSessionId: sessionId,
-        stripePaymentIntentId,
+        stripePaymentIntentId: stripePaymentIntentId ?? null,
         downloadToken: token,
       });
     }
