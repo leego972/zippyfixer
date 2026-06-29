@@ -4,74 +4,19 @@ import LeegoFooter from "@/components/LeegoFooter";
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 const BASE = API_ORIGIN || import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const FEATURES = [
-  {
-    icon: "🧠",
-    title: "AI-Driven Browser Testing",
-    desc: "Groq-powered AI clicks every button, fills every form, and navigates every page — just like a real senior QA engineer would.",
-  },
-  {
-    icon: "📸",
-    title: "Visual Regression Testing",
-    desc: "Snap pixel-perfect baselines then compare any future state. Catches layout shifts, broken styles, and UI regressions automatically.",
-  },
-  {
-    icon: "🕷",
-    title: "Multi-Page Site Crawl",
-    desc: "Auto-discovers every internal link and tests each page. Get a full site-map with broken images, errors, and status in one pass.",
-  },
-  {
-    icon: "🏆",
-    title: "Full Lighthouse Audit",
-    desc: "Real Performance, Accessibility, Best Practices, and SEO scores plus Core Web Vitals (LCP, CLS, FCP) via Google PageSpeed Insights.",
-  },
-  {
-    icon: "🔌",
-    title: "API Endpoint Testing",
-    desc: "Test any REST or GraphQL endpoint directly — custom headers, methods, body, status code validation, and JSON path assertions.",
-  },
-  {
-    icon: "⏺",
-    title: "Test Recording & Replay",
-    desc: "Record any user flow once, save it as a replayable script, and run it on every deploy to catch regressions automatically.",
-  },
-  {
-    icon: "⏰",
-    title: "Scheduled Monitoring",
-    desc: "Set a cron schedule and ReviewGuard runs automatically — daily, hourly, or weekly — then sends a report when bugs are found.",
-  },
-  {
-    icon: "🔔",
-    title: "Slack & Discord Alerts",
-    desc: "Get a formatted bug summary posted to your Slack channel or Discord server the moment a test finishes.",
-  },
-  {
-    icon: "🐙",
-    title: "GitHub Integration",
-    desc: "AI reads your source code, creates fix branches, commits patches, and opens PRs — bugs get squashed automatically.",
-  },
-  {
-    icon: "🚂",
-    title: "Railway Integration",
-    desc: "Check deployment status, read runtime logs, and trigger redeploys — all in the same testing session.",
-  },
-  {
-    icon: "▲",
-    title: "Vercel Integration",
-    desc: "List projects, inspect deployments, fetch build logs, and trigger redeploys directly from your testing session.",
-  },
-  {
-    icon: "🔍",
-    title: "Deep Bug Detection",
-    desc: "Broken links, missing images, console errors, JS crashes, accessibility violations, cookie issues — nothing escapes ReviewGuard.",
-  },
+const CHECKS = [
+  "Website/app flow review",
+  "Broken links and missing assets",
+  "Mobile layout issues",
+  "SEO and page-speed basics",
+  "Security-header basics",
+  "Repair-ready report",
 ];
 
 const HOW = [
-  { step: "01", title: "Paste your URL", desc: "Point ReviewGuard at any website — staging, production, or localhost." },
-  { step: "02", title: "AI tests everything", desc: "Groq AI navigates the site, clicks around, and hunts for bugs like a senior QA engineer." },
-  { step: "03", title: "Fixes pushed to GitHub", desc: "Found a bug? AI reads the code, writes the fix, and opens a PR — all without you lifting a finger." },
-  { step: "04", title: "Full report delivered", desc: "Get a clean bug report with severity ratings, screenshots, and recommended next steps." },
+  { step: "01", title: "Enter your email", desc: "Start checkout through the same Stripe account used for VIBA." },
+  { step: "02", title: "Run a review", desc: "Reviewer+ checks the site or app and produces a clear report." },
+  { step: "03", title: "Fix what matters", desc: "Use the repair checklist or upgrade into VIBA for deeper build support." },
 ];
 
 export default function LandingPage() {
@@ -81,17 +26,23 @@ export default function LandingPage() {
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) { setError("Please enter your email."); return; }
+    if (!email.trim()) {
+      setError("Please enter your email.");
+      return;
+    }
+
     setLoading(true);
     setError("");
+
     try {
       const res = await fetch(`${BASE}/api/checkout/create-session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Checkout failed");
+
+      const data = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok || !data.url) throw new Error(data.error || "Checkout failed");
       window.location.href = data.url;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -101,66 +52,58 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#060a0f] text-white overflow-x-hidden">
-
-      {/* ── Nav ── */}
       <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/5 backdrop-blur-xl bg-[#060a0f]/80">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/reviewguard-logo.jpeg" alt="ReviewGuard" className="h-9 w-9 rounded-lg object-cover" />
+            <img src="/reviewguard-logo.jpeg" alt="Reviewer+" className="h-9 w-9 rounded-lg object-cover" />
             <span className="text-xl font-bold tracking-tight">
-              <span className="text-[#00ff88]">Review</span>Guard
+              <span className="text-[#00ff88]">Reviewer</span>+
             </span>
-            <span className="text-[10px] font-mono text-[#00ff88]/60 border border-[#00ff88]/20 rounded px-1.5 py-0.5">EARLY ACCESS</span>
+            <span className="text-[10px] font-mono text-[#00ff88]/60 border border-[#00ff88]/20 rounded px-1.5 py-0.5">
+              POWERED BY VIBA
+            </span>
           </div>
-          <a
-            href="#buy"
-            className="btn-shimmer text-black font-semibold text-sm px-4 py-2 rounded-lg transition-opacity hover:opacity-90"
-          >
-            Get ReviewGuard — $497
+          <a href="#buy" className="btn-shimmer text-black font-semibold text-sm px-4 py-2 rounded-lg transition-opacity hover:opacity-90">
+            Start Reviewer+
           </a>
         </div>
       </nav>
 
-      {/* ── Hero ── */}
       <section className="relative pt-32 pb-24 px-6 bg-grid overflow-hidden">
-        {/* Radial glow */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[800px] h-[800px] rounded-full bg-[#00ff88]/5 blur-[120px]" />
         </div>
 
         <div className="relative max-w-4xl mx-auto text-center">
-          {/* Logo */}
           <div className="flex justify-center mb-8">
-            <img src="/reviewguard-logo.jpeg" alt="ReviewGuard" className="h-28 w-28 rounded-2xl object-cover shadow-[0_0_40px_rgba(99,102,241,0.4)]" />
+            <img src="/reviewguard-logo.jpeg" alt="Reviewer+" className="h-28 w-28 rounded-2xl object-cover shadow-[0_0_40px_rgba(99,102,241,0.4)]" />
           </div>
 
-          {/* Live badge */}
           <div className="inline-flex items-center gap-2 border border-[#00ff88]/25 bg-[#00ff88]/5 rounded-full px-4 py-1.5 mb-8">
             <span className="w-2 h-2 rounded-full bg-[#00ff88] pulse-dot" />
-            <span className="text-xs font-mono text-[#00ff88]/80 tracking-wide">AI-POWERED · BRING YOUR OWN KEY · ONE-TIME PRICE</span>
+            <span className="text-xs font-mono text-[#00ff88]/80 tracking-wide">SIMPLE WEBSITE · APP · BUILD REVIEW</span>
           </div>
 
           <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
-            <span className="gradient-text">ReviewGuard</span>
+            <span className="gradient-text">Reviewer+</span>
             <br />
-            <span className="text-white/90">Your All-In-One</span>
+            <span className="text-white/90">Check your build</span>
             <br />
-            <span className="text-white/90">Beta Tester!</span>
+            <span className="text-white/90">before customers do.</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-white/50 max-w-2xl mx-auto mb-12 leading-relaxed">
-            An AI that clicks every button, finds every bug, reads your GitHub code,
-            writes the fixes, and deploys — all before your morning coffee.
+            Reviewer+ is the simple VIBA-powered review product for testing websites,
+            apps, and software builds, then producing a repair-ready report.
           </p>
 
-          {/* CTA form */}
           <div id="buy" className="max-w-md mx-auto">
             <form onSubmit={handleCheckout} className="flex flex-col gap-3">
               <input
                 type="email"
                 placeholder="your@email.com"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/25 focus:outline-none focus:border-[#00ff88]/50 focus:ring-1 focus:ring-[#00ff88]/30 transition"
               />
               {error && <p className="text-red-400 text-sm text-left">{error}</p>}
@@ -169,112 +112,69 @@ export default function LandingPage() {
                 disabled={loading}
                 className="btn-shimmer text-black font-bold text-lg py-4 rounded-xl transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {loading ? "Redirecting to checkout…" : "Buy Now — $497 One-Time"}
+                {loading ? "Redirecting to checkout…" : "Start with Reviewer+"}
               </button>
               <p className="text-xs text-white/25 text-center">
-                Instant download after payment · Runs locally · No subscription
+                Secure Stripe checkout · Credits can sync with VIBA when configured
               </p>
             </form>
-          </div>
-
-          {/* Social proof strip */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-12 text-xs text-white/30 font-mono">
-            <span>✓ Visual regression testing</span>
-            <span>✓ Full Lighthouse audit</span>
-            <span>✓ Multi-page site crawl</span>
-            <span>✓ API endpoint testing</span>
-            <span>✓ Scheduled monitoring</span>
-            <span>✓ Slack &amp; Discord alerts</span>
-            <span>✓ GitHub · Railway · Vercel</span>
-            <span>✓ Test recording &amp; replay</span>
           </div>
         </div>
       </section>
 
-      {/* ── Features ── */}
-      <section className="py-24 px-6 border-t border-white/5">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+      <section className="py-20 px-6 border-t border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Everything your QA team does —{" "}
-              <span className="gradient-text">automated</span>
+              Simple review. <span className="gradient-text">Clear fixes.</span>
             </h2>
             <p className="text-white/40 max-w-xl mx-auto">
-              ReviewGuard combines a real Chromium browser, GitHub code access, and
-              Groq AI to test, fix, and deploy — all in one tool.
+              Keep this product focused: test, identify issues, and produce a useful repair checklist.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map(f => (
-              <div
-                key={f.title}
-                className="feature-card bg-white/[0.03] border border-white/8 rounded-2xl p-6"
-              >
-                <div className="text-4xl mb-4">{f.icon}</div>
-                <h3 className="font-semibold text-white mb-2">{f.title}</h3>
-                <p className="text-sm text-white/40 leading-relaxed">{f.desc}</p>
+            {CHECKS.map((item) => (
+              <div key={item} className="feature-card bg-white/[0.03] border border-white/8 rounded-2xl p-6">
+                <div className="text-[#00ff88] text-2xl mb-3">✓</div>
+                <h3 className="font-semibold text-white">{item}</h3>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── How it works ── */}
-      <section className="py-24 px-6 border-t border-white/5 bg-white/[0.01]">
+      <section className="py-20 px-6 border-t border-white/5 bg-white/[0.01]">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               How it <span className="gradient-text">works</span>
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {HOW.map(h => (
-              <div key={h.step} className="flex gap-5 p-6 bg-white/[0.03] border border-white/8 rounded-2xl">
-                <span className="text-4xl font-black text-[#00ff88]/20 font-mono shrink-0">{h.step}</span>
-                <div>
-                  <h3 className="font-semibold text-white mb-1">{h.title}</h3>
-                  <p className="text-sm text-white/40 leading-relaxed">{h.desc}</p>
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {HOW.map((h) => (
+              <div key={h.step} className="p-6 bg-white/[0.03] border border-white/8 rounded-2xl">
+                <span className="text-4xl font-black text-[#00ff88]/20 font-mono">{h.step}</span>
+                <h3 className="font-semibold text-white mt-4 mb-2">{h.title}</h3>
+                <p className="text-sm text-white/40 leading-relaxed">{h.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Pricing ── */}
-      <section id="pricing" className="py-24 px-6 border-t border-white/5">
+      <section id="pricing" className="py-20 px-6 border-t border-white/5">
         <div className="max-w-lg mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            One price. <span className="gradient-text">Forever yours.</span>
+            Start with <span className="gradient-text">Reviewer+</span>
           </h2>
-          <p className="text-white/40 mb-10">No subscriptions. No limits. Runs on your machine.</p>
+          <p className="text-white/40 mb-10">
+            Use Reviewer+ as the entry product. Upgrade into VIBA when you need the full AI command center.
+          </p>
 
           <div className="glow-green border border-[#00ff88]/25 bg-[#00ff88]/5 rounded-3xl p-10 mb-6">
-            <div className="flex items-end justify-center gap-2 mb-2">
-              <span className="text-7xl font-black text-white">$497</span>
-              <span className="text-white/30 mb-3 text-lg">one-time</span>
-            </div>
-            <p className="text-white/50 text-sm mb-2">Pay once. Own it forever. <span className="text-[#00ff88]/70">vs $3,000+/yr for competitors.</span></p>
-            <p className="text-white/30 text-xs mb-8">Bring your own AI key (OpenAI · Anthropic · Groq · OpenRouter)</p>
-
             <ul className="text-left space-y-3 mb-10 text-sm text-white/60">
-              {[
-                "Full standalone Node.js app — runs on your machine",
-                "Real Chromium browser via Playwright",
-                "Visual regression testing — pixel-perfect baseline comparison",
-                "Multi-page crawl — auto-test every internal link",
-                "Full Lighthouse audit — Performance, A11y, SEO, CWV",
-                "API endpoint testing — REST & GraphQL, status & JSON assertions",
-                "Test recording & replay — record once, run forever",
-                "Scheduled monitoring — cron-based auto-tests",
-                "Slack & Discord alerts — instant bug reports to your team",
-                "GitHub: read code, write fixes, open & merge PRs",
-                "Railway + Vercel integrations: deployments, logs, redeploys",
-                "Email notifications via SMTP",
-                "Works with any AI provider you already pay for",
-                "Unlimited sites · All future updates included",
-              ].map(item => (
+              {CHECKS.map((item) => (
                 <li key={item} className="flex items-start gap-2.5">
                   <span className="text-[#00ff88] mt-0.5 shrink-0">✓</span>
                   {item}
@@ -287,27 +187,20 @@ export default function LandingPage() {
                 type="email"
                 placeholder="your@email.com"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-3 text-white placeholder:text-white/25 focus:outline-none focus:border-[#00ff88]/50 transition"
               />
               {error && <p className="text-red-400 text-sm text-left">{error}</p>}
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-shimmer text-black font-bold text-lg py-4 rounded-xl transition-opacity disabled:opacity-60"
-              >
-                {loading ? "Redirecting…" : "Buy ReviewGuard — $497"}
+              <button type="submit" disabled={loading} className="btn-shimmer text-black font-bold text-lg py-4 rounded-xl transition-opacity disabled:opacity-60">
+                {loading ? "Redirecting…" : "Start Reviewer+"}
               </button>
             </form>
           </div>
 
-          <p className="text-xs text-white/20">
-            Secure checkout via Stripe · Instant ZIP download after payment
-          </p>
+          <p className="text-xs text-white/20">Secure checkout via Stripe · VIBA upgrade path supported</p>
         </div>
       </section>
 
-      {/* ── Leego Footer ── */}
       <LeegoFooter />
     </div>
   );
